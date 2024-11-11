@@ -191,8 +191,7 @@ if pagina_selecionada == "✍🏽Marcação de Ponto":
             st.warning("Utilize somente numeros")                     
 
 try:
-    entered_password = str(int(st.sidebar.text_input ("",type="password")))
-
+    entered_password = str(int(st.sidebar.text_input("Digite sua senha:", type="password")))
     if pagina_selecionada == "🔍Consultas":
         st.title("🔍Consulta")
         
