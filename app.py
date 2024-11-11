@@ -263,27 +263,13 @@ try:
     elif pagina_selecionada == "🔐Restrito" and entered_password == senha_admin:
         st.title("🔐Restrito")
 
-        # Filtro de nome
         nomes = existing_data_reservations["Name"].unique()
         filtro_nome = st.selectbox("Filtrar por Nome", ["Todos"] + list(nomes))
 
-        # Filtros de data
-        data_atual = datetime.now().date()
-        data_inicio = st.date_input("Data de Início", value=data_atual)
-        data_fim = st.date_input("Data de Fim", value=data_atual)
-
-        # Aplicar filtros
         filtered_data = existing_data_reservations.copy()
         if filtro_nome != "Todos":
             filtered_data = filtered_data[filtered_data["Name"] == filtro_nome]
 
-        filtered_data["SubmissionDateTime"] = pd.to_datetime(filtered_data["SubmissionDateTime"])
-        filtered_data = filtered_data[
-            (filtered_data["SubmissionDateTime"].dt.date >= data_inicio) &
-            (filtered_data["SubmissionDateTime"].dt.date <= data_fim)
-        ]
-
-        # Exibir dados filtrados
         st.write(filtered_data)
 
         sheet_name = st.text_input("Digite o nome da nova aba:", "Nova_aba")
@@ -293,9 +279,6 @@ try:
         st.write(f"[Aceder a planilha](https://docs.google.com/spreadsheets/d/1ujI1CUkvZoAYuucX4yrV2Z5BN3Z8-o-Kqm3PAfMqi0I/edit?gid=1541275584#gid=1541275584)")
         st.write(f"[Aceder a documentação](https://docs.google.com/document/d/1wgndUW2Xb48CBi6BSgSBRVw2sdqgqFtZxg_9Go5GYLg/edit?usp=sharing)")
 
-        simplified_data = filtered_data[['Name', 'Button', 'SubmissionDateTime']]
-        st.write("Dados simplificados:")
-        st.write(simplified_data)
 
     else:
         if pagina_selecionada in ["🔍Consultas", "🔐Restrito"]:
