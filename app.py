@@ -93,7 +93,7 @@ if pagina_selecionada == "✍🏽Marcação de Ponto":
                 if st.button("☕ Entrada Manhã"):
                                 current_time = datetime.now()
                                 #one_hour_after = current_time + timedelta(hours=1)
-                                submission_datetime = current_time #one_hour_after.strftime("%Y-%m-%d %H:%M:%S")
+                                submission_datetime = current_time.strftime("%Y-%m-%d %H:%M:%S") #one_hour_after.strftime("%Y-%m-%d %H:%M:%S")
                                 new_data = pd.DataFrame({
                                     "Name": [nome],
                                     "Button": ["Entrada Manhã"],
