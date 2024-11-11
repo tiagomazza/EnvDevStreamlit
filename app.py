@@ -275,8 +275,6 @@ try:
 
         filtered_data = existing_data_reservations.copy()
 
-        st.write(filtered_data) #filtered data
-
         if filtro_nome != "Todos":
             filtered_data = filtered_data[filtered_data["Name"] == filtro_nome]
 
@@ -295,6 +293,8 @@ try:
             'Saída Tarde': np.where(filtered_data['Button'] == 'Saída Tarde', filtered_data['SubmissionDateTime'].dt.strftime("%H:%M"), pd.NaT),
             'Total trabalhado': pd.NaT
         }
+
+        st.write(data) #data
 
         df = pd.DataFrame(data)
         df['Entrada Manhã'] = pd.to_datetime(df['Entrada Manhã'])
