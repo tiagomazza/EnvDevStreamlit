@@ -262,6 +262,21 @@ try:
 
     elif pagina_selecionada == "🔐Restrito" and entered_password == senha_admin:
       
+        st.subheader("Dados Brutos (Depuração)")
+        st.write("Verificando a leitura dos dados:")
+        st.write(existing_data_reservations)
+
+        if existing_data_reservations.empty:
+            st.warning("O dataframe está vazio. Verifique a conexão com a planilha.")
+        else:
+            st.success(f"Foram lidos {len(existing_data_reservations)} registros.")
+
+        st.write("Colunas presentes:")
+        st.write(existing_data_reservations.columns.tolist())
+
+        st.write("Primeiras 5 linhas dos dados:")
+        st.write(existing_data_reservations.head())
+
         st.title("🔐Restrito")
 
         nomes = existing_data_reservations["Name"].unique()
