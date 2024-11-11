@@ -293,6 +293,10 @@ try:
         st.write(f"[Aceder a planilha](https://docs.google.com/spreadsheets/d/1ujI1CUkvZoAYuucX4yrV2Z5BN3Z8-o-Kqm3PAfMqi0I/edit?gid=1541275584#gid=1541275584)")
         st.write(f"[Aceder a documentação](https://docs.google.com/document/d/1wgndUW2Xb48CBi6BSgSBRVw2sdqgqFtZxg_9Go5GYLg/edit?usp=sharing)")
 
+        simplified_data = filtered_data[['Name', 'Button', 'SubmissionDateTime']]
+        st.write("Dados simplificados:")
+        st.write(simplified_data)
+
     else:
         if pagina_selecionada in ["🔍Consultas", "🔐Restrito"]:
             st.warning("Acesso restrito. Insira a senha correta.")   
