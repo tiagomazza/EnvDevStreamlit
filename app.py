@@ -275,6 +275,8 @@ try:
 
         filtered_data = existing_data_reservations.copy()
 
+        st.write(filtered_data) #filtered data
+
         if filtro_nome != "Todos":
             filtered_data = filtered_data[filtered_data["Name"] == filtro_nome]
 
