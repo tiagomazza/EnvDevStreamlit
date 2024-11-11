@@ -88,7 +88,7 @@ if pagina_selecionada == "✍🏽Marcação de Ponto":
                 nome = dados.loc[dados["Pin"] == pin_int, "Nome"].iloc[0]
 
                 st.write(f"😀 Bem-vindo, {nome}!")
-                st.write("")
+                st.write("**Carregue no botão abaixo correspondente ao registo desejado:**")
 
                 if st.button("☕ Entrada Manhã"):
                                 current_time = datetime.now()
