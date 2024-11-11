@@ -260,47 +260,45 @@ try:
         st.write(f"[Aceder a planilha](https://docs.google.com/spreadsheets/d/1ujI1CUkvZoAYuucX4yrV2Z5BN3Z8-o-Kqm3PAfMqi0I/edit?gid=1541275584#gid=1541275584)")
         st.write(f"[Aceder a documentação](https://docs.google.com/document/d/1wgndUW2Xb48CBi6BSgSBRVw2sdqgqFtZxg_9Go5GYLg/edit?usp=sharing)")
 
-    elif pagina_selecionada == "🔐Restrito" and entered_password == senha_admin:
+    elif pagina_selecionada == "🔐Restrito":
+      
         st.title("🔐Restrito")
 
-        # Filtro de nome
         nomes = existing_data_reservations["Name"].unique()
         filtro_nome = st.selectbox("Filtrar por Nome", ["Todos"] + list(nomes))
 
-        # Filtros de data
         data_inicio = st.date_input("Data de Início")
         data_fim = st.date_input("Data de Fim")
 
-        # Aplicar filtros
         filtered_data = existing_data_reservations.copy()
-        
-        # Converter a coluna SubmissionDateTime para datetime
-        filtered_data["SubmissionDateTime"] = pd.to_datetime(filtered_data["SubmissionDateTime"])
 
         if filtro_nome != "Todos":
             filtered_data = filtered_data[filtered_data["Name"] == filtro_nome]
 
         if data_inicio and data_fim:
-            data_inicio = pd.Timestamp(data_inicio)
-            data_fim = pd.Timestamp(data_fim) + pd.Timedelta(days=1) - pd.Timedelta(microseconds=1)
-            filtered_data = filtered_data[
-                (filtered_data["SubmissionDateTime"] >= data_inicio) &
-                (filtered_data["SubmissionDateTime"] <= data_fim)
-            ]
+            data_inicio = datetime.combine(data_inicio, datetime.min.time())
+            data_fim = datetime.combine(data_fim, datetime.max.time())
+            filtered_data["SubmissionDateTime"] = pd.to_datetime(filtered_data["SubmissionDateTime"])
+            filtered_data = filtered_data[(filtered_data["SubmissionDateTime"] >= data_inicio) & (filtered_data["SubmissionDateTime"] <= data_fim)]
 
-        # Processar os dados
         data = {
-            'Data': filtered_data['SubmissionDateTime'].dt.strftime("%d/%m/%Y"),
+            'Data': filtered_data['SubmissionDateTime'].dt.strftime("%d/%m"),  
             'Nome': filtered_data['Name'],
             'Entrada Manhã': np.where(filtered_data['Button'] == 'Entrada Manhã', filtered_data['SubmissionDateTime'].dt.strftime("%H:%M"), pd.NaT),
             'Saída Manhã': np.where(filtered_data['Button'] == 'Saída Manhã', filtered_data['SubmissionDateTime'].dt.strftime("%H:%M"), pd.NaT),
             'Entrada Tarde': np.where(filtered_data['Button'] == 'Entrada Tarde', filtered_data['SubmissionDateTime'].dt.strftime("%H:%M"), pd.NaT),
             'Saída Tarde': np.where(filtered_data['Button'] == 'Saída Tarde', filtered_data['SubmissionDateTime'].dt.strftime("%H:%M"), pd.NaT),
+            'Total trabalhado': pd.NaT
         }
 
         df = pd.DataFrame(data)
+        df['Entrada Manhã'] = pd.to_datetime(df['Entrada Manhã'])
+        df['Saída Manhã'] = pd.to_datetime(df['Saída Manhã'])
+        df['Entrada Tarde'] = pd.to_datetime(df['Entrada Tarde'])
+        df['Saída Tarde'] = pd.to_datetime(df['Saída Tarde'])
 
-        # Agrupar os dados
+        fill_missing_data(df)
+
         grouped_data = df.groupby(['Data', 'Nome']).agg({
             'Entrada Manhã': 'first',
             'Saída Manhã': 'first',
@@ -308,29 +306,26 @@ try:
             'Saída Tarde': 'first'
         }).reset_index()
 
-        # Calcular o total trabalhado
-        def calcular_total_trabalhado(row):
-            tempos = [row['Entrada Manhã'], row['Saída Manhã'], row['Entrada Tarde'], row['Saída Tarde']]
-            tempos = [pd.to_datetime(t, format='%H:%M') for t in tempos if pd.notna(t)]
-            if len(tempos) >= 2:
-                total = sum((tempos[i+1] - tempos[i] for i in range(0, len(tempos), 2)), pd.Timedelta(0))
-                return str(total)[:-3]  # Removendo os segundos
-            return ''
+        grouped_data['Total trabalhado'] = np.nan
+        for index, row in grouped_data.iterrows():
+            if not (pd.isnull(row['Entrada Manhã']) or pd.isnull(row['Saída Manhã']) or pd.isnull(row['Entrada Tarde']) or pd.isnull(row['Saída Tarde'])):
+                total_trabalhado = (row['Saída Manhã'] - row['Entrada Manhã']) + (row['Saída Tarde'] - row['Entrada Tarde'])
+                grouped_data.at[index, 'Total trabalhado'] = total_trabalhado
 
-        grouped_data['Total trabalhado'] = grouped_data.apply(calcular_total_trabalhado, axis=1)
+        grouped_data['Total trabalhado'] = grouped_data['Total trabalhado'].apply(lambda x: x.total_seconds() / 3600 if pd.notnull(x) else 0)
+        grouped_data['Total trabalhado'] = grouped_data['Total trabalhado'].apply(lambda x: '{:02.0f}:{:02.0f}'.format(*divmod(x * 60, 60)))
 
-        # Exibir os dados
-        if grouped_data.empty:
-            st.warning("Nenhum dado encontrado para os filtros selecionados.")
-        else:
-            st.write(grouped_data)
+        grouped_data['Entrada Manhã'] = grouped_data['Entrada Manhã'].dt.strftime("%H:%M")
+        grouped_data['Saída Manhã'] = grouped_data['Saída Manhã'].dt.strftime("%H:%M")
+        grouped_data['Entrada Tarde'] = grouped_data['Entrada Tarde'].dt.strftime("%H:%M")
+        grouped_data['Saída Tarde'] = grouped_data['Saída Tarde'].dt.strftime("%H:%M")
 
-        # Opção para salvar os dados
+        st.write(grouped_data)
+
         sheet_name = st.text_input("Digite o nome da nova aba:", "Nova_aba")
         if st.button("Salvar dados"):
             save_to_new_sheet(grouped_data)
 
-        # Links
         st.write(f"[Aceder a planilha](https://docs.google.com/spreadsheets/d/1ujI1CUkvZoAYuucX4yrV2Z5BN3Z8-o-Kqm3PAfMqi0I/edit?gid=1541275584#gid=1541275584)")
         st.write(f"[Aceder a documentação](https://docs.google.com/document/d/1wgndUW2Xb48CBi6BSgSBRVw2sdqgqFtZxg_9Go5GYLg/edit?usp=sharing)")
     else:
