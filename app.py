@@ -61,7 +61,7 @@ def save_to_new_sheet(df):
         st.error(f"Erro ao salvar dados na aba '{sheet_name}': {e}")
 st.sidebar.image("https://aborgesdoamaral.pt/wp-content/uploads/2021/04/marca-de-75-anos.png", use_container_width=True)  # 
 
-pagina_selecionada = st.sidebar.radio("💬MENU", ["✍🏽Marcação de Ponto", "🔍Consultas", "🔐Restrito"])
+pagina_selecionada = st.sidebar.radio("", ["✍🏽Marcação de Ponto", "🔍Consultas", "🔐Restrito"])
 
 
 dados = conn.read(worksheet="Dados", usecols=["Pin", "Nome"], ttl=5)
@@ -192,7 +192,7 @@ if pagina_selecionada == "✍🏽Marcação de Ponto":
 
 try:
     entered_password = str(int(st.sidebar.text_input("Digite sua senha:", type="password")))
-    if pagina_selecionada == "🔍Consultas":
+    if pagina_selecionada == "🔍Consultas" and entered_password == senha_admin:
         st.title("🔍Consulta")
         
         nomes = existing_data_reservations["Name"].unique()
