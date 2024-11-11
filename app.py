@@ -261,12 +261,9 @@ try:
         st.write(f"[Aceder a documentação](https://docs.google.com/document/d/1wgndUW2Xb48CBi6BSgSBRVw2sdqgqFtZxg_9Go5GYLg/edit?usp=sharing)")
 
     elif pagina_selecionada == "🔐Restrito" and entered_password == senha_admin:
-      
-
-        st.write(existing_data_reservations)
 
         st.title("🔐Restrito")
-
+        st.write(existing_data_reservations)
         
 
         sheet_name = st.text_input("Digite o nome da nova aba:", "Nova_aba")
