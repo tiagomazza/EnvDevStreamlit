@@ -249,7 +249,10 @@ try:
         grouped_data['Entrada Tarde'] = grouped_data['Entrada Tarde'].dt.strftime("%H:%M")
         grouped_data['Saída Tarde'] = grouped_data['Saída Tarde'].dt.strftime("%H:%M")
 
-        st.write(grouped_data)
+        if filtered_data.empty:
+            st.warning("Nenhum dado encontrado para os filtros selecionados.")
+        else:
+            st.write(grouped_data)
 
         sheet_name = st.text_input("Digite o nome da nova aba:", "Nova_aba")
         if st.button("Salvar dados"):
